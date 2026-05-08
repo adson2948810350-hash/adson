@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>沣峪口老油坊博物馆 - 传承非遗匠心</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ================= 1. 核心设计变量与重置 ================= */
+        :root {
+            --primary-red: #8E2A21;
+            --bg-paper: #FDF9F1;
+            --text-main: #3B302C;
+            --accent-gold: #C09A6A;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-paper); color: var(--text-main);
+            font-family: 'Noto Serif SC', serif; line-height: 1.8; overflow-x: hidden;
+        }
+
+        /* ================= 2. 交互动画类 ================= */
+        .reveal {
+            opacity: 0; transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.3s; }
+        .delay-3 { transition-delay: 0.5s; }
+
+        /* ================= 3. 顶部导航栏 (含移动端优化) ================= */
+        header {
+            background-color: #ffffff; height: 80px; width: 100%;
+            position: fixed; top: 0; z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 5%; border-bottom: 2px solid #000000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-family: 'Ma Shan Zheng', cursive; font-size: 32px;
+            color: var(--primary-red); text-decoration: none; letter-spacing: 2px;
+        }
+
+        .nav-links { display: flex; gap: 40px; }
+        .nav-links a {
+            text-decoration: none; color: #333; font-size: 16px; font-weight: 500;
+            position: relative; padding-bottom: 5px; transition: color 0.3s;
+        }
+        .nav-links a::after {
+            content: ''; position: absolute; width: 0; height: 2px; bottom: 0; left: 0;
+            background-color: var(--primary-red); transition: width 0.3s ease;
+        }
+        .nav-links a:hover { color: var(--primary-red); }
+        .nav-links a:hover::after { width: 100%; }
+
+        /* 移动端汉堡菜单按钮 (默认隐藏) */
+        .menu-toggle {
+            display: none; font-size: 26px; color: var(--primary-red); cursor: pointer;
+        }
+
+        /* ================= 4. 页面布局容器 ================= */
+        section { padding: 100px 0; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 5%; }
+
+        /* ================= 5. 首屏 (Hero) ================= */
+        .hero {
+            height: 100vh; margin-top: -80px;
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://pic1.imgdb.cn/item/69fdaef5353cb83ac76426e9.jpg');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; color: #fff; padding: 0 5%;
+        }
+
+        .hero-subtitle { font-size: 16px; letter-spacing: 8px; margin-bottom: 20px; opacity: 0.9; }
+        .hero-title {
+            font-family: 'Ma Shan Zheng', cursive; font-size: 90px;
+            margin-bottom: 40px; letter-spacing: 8px; text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            line-height: 1.2;
+        }
+
+        .hero-btn {
+            background-color: var(--primary-red); color: #fff; padding: 14px 40px;
+            border-radius: 30px; text-decoration: none; font-size: 16px;
+            border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s;
+        }
+        .hero-btn:hover { background-color: #722019; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+
+        /* ================= 6. 关于概况 ================= */
+        .about-section { background-color: var(--bg-paper); }
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-header h2 { font-family: 'Ma Shan Zheng', cursive; font-size: 50px; color: var(--primary-red); }
+        .section-header .divider { width: 50px; height: 3px; background-color: var(--accent-gold); margin: 15px auto; }
+        
+        .about-content { display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px; align-items: center; }
+        .about-text p { font-size: 16px; margin-bottom: 25px; text-align: justify; }
+        .about-image { border-radius: 6px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); overflow: hidden; }
+        .about-image img { width: 100%; display: block; transition: transform 0.5s ease; }
+        .about-image:hover img { transform: scale(1.03); }
+
+        /* ================= 7. 核心技艺 ================= */
+        .craft-section { background-color: #f7f5f0; }
+        .craft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        
+        .craft-card {
+            background: #fff; border-radius: 6px; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .craft-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .craft-card .img-container { height: 260px; overflow: hidden; }
+        .craft-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; }
+        .craft-card:hover img { transform: scale(1.08); }
+        
+        .craft-info { padding: 30px; }
+        .craft-info h3 { font-family: 'ZCOOL XiaoWei', serif; font-size: 22px; color: var(--primary-red); margin-bottom: 12px; }
+        .craft-info p { font-size: 14px; color: #666; }
+
+        /* ================= 8. 文旅融合 ================= */
+        .culture-section {
+            height: 600px; min-height: 80vh;
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://pic1.imgdb.cn/item/69fdaef7353cb83ac76426ed.jpg');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 5%;
+        }
+        .culture-content {
+            max-width: 800px; width: 100%; background-color: rgba(253, 249, 241, 0.95);
+            padding: 50px; color: var(--text-main); border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .culture-content h2 { font-family: 'Ma Shan Zheng', cursive; font-size: 40px; margin-bottom: 20px; color: var(--primary-red); }
+        .culture-content p { font-size: 16px; text-align: justify; }
+
+        /* ================= 9. 预约系统 ================= */
+        .visit-section { padding: 100px 0; background-color: #fff; }
+        .visit-card {
+            background-color: #fff; border-top: 8px solid var(--primary-red);
+            padding: 50px; box-shadow: 0 10px 40px rgba(0,0,0,0.06); max-width: 900px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;
+        }
+        .visit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+        .info-block h4 { color: var(--primary-red); font-size: 18px; margin-bottom: 10px; }
+        .info-block p { font-size: 15px; color: #555; }
+        
+        .visit-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .visit-form input, .visit-form select {
+            padding: 15px; border: 1px solid #ddd; background-color: #fafafa; font-family: inherit; font-size: 15px; border-radius: 4px; outline: none; transition: 0.3s;
+            -webkit-appearance: none; /* 解决 iOS 表单默认样式问题 */
+        }
+        .visit-form input:focus, .visit-form select:focus { border-color: var(--primary-red); }
+        .submit-btn {
+            grid-column: span 2; background-color: var(--primary-red); color: #fff; padding: 16px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.3s;
+        }
+        .submit-btn:hover { background-color: #722019; }
+
+        /* ================= 10. 交互弹窗 ================= */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 2000;
+            opacity: 0; visibility: hidden; transition: all 0.3s ease; padding: 0 5%;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: #fff; padding: 40px 30px; border-radius: 8px; text-align: center;
+            max-width: 400px; width: 100%; transform: scale(0.8); transition: all 0.3s ease; border-top: 5px solid var(--primary-red);
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-icon { font-size: 40px; color: #C09A6A; margin-bottom: 15px; }
+        .modal-title { font-family: 'ZCOOL XiaoWei', serif; font-size: 26px; color: var(--primary-red); margin-bottom: 10px; }
+        .modal-close-btn { margin-top: 25px; padding: 12px 30px; background: var(--primary-red); color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 15px; }
+
+        footer { text-align: center; padding: 30px 5%; background-color: #2C1E16; color: #888; font-size: 13px; }
+
+        /* ================= 11. 手机端响应式终极优化 (Media Queries) ================= */
+        @media (max-width: 900px) {
+            /* 导航栏变更为汉堡菜单 */
+            .menu-toggle { display: block; }
+            .nav-links {
+                position: absolute; top: 80px; left: 0; width: 100%;
+                background-color: #ffffff; flex-direction: column; gap: 0;
+                box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+                /* 默认隐藏在上方 */
+                transform: translateY(-150%); opacity: 0; transition: all 0.4s ease;
+                border-top: 1px solid #eee;
+            }
+            .nav-links.active { transform: translateY(0); opacity: 1; }
+            .nav-links a {
+                padding: 20px; text-align: center; display: block; border-bottom: 1px solid #f5f5f5; font-size: 16px;
+            }
+            .nav-links a::after { display: none; } /* 手机端取消底边线特效 */
+
+            /* 首屏文字缩放 */
+            .hero-title { font-size: 55px; letter-spacing: 4px; }
+            .hero-subtitle { font-size: 14px; letter-spacing: 4px; }
+            
+            /* 模块间距缩小 */
+            section { padding: 60px 0; }
+            .section-header { margin-bottom: 40px; }
+            .section-header h2 { font-size: 40px; }
+
+            /* 左右布局变上下堆叠 */
+            .about-content { grid-template-columns: 1fr; gap: 40px; }
+            .craft-grid { grid-template-columns: 1fr; gap: 25px; }
+            
+            /* 调整背景视差在某些手机浏览器上的兼容性 */
+            .hero, .culture-section { background-attachment: scroll; }
+            
+            /* 预约表单单列化 */
+            .visit-card { padding: 30px 20px; }
+            .visit-grid { grid-template-columns: 1fr; gap: 25px; margin-bottom: 30px; }
+            .visit-form { grid-template-columns: 1fr; }
+            .submit-btn { grid-column: span 1; }
+            
+            .culture-content { padding: 30px 20px; }
+            .culture-content h2 { font-size: 32px; }
+        }
+
+        /* 针对超小屏幕 (如旧版 iPhone) */
+        @media (max-width: 400px) {
+            .hero-title { font-size: 45px; }
+            .logo { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo">沣峪口老油坊</a>
+        <div class="menu-toggle" id="mobile-menu-btn">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+        <nav class="nav-links" id="nav-menu">
+            <a href="#about" class="nav-item">关于概况</a>
+            <a href="#craft" class="nav-item">核心技艺</a>
+            <a href="#culture" class="nav-item">文旅融合</a>
+            <a href="#visit" class="nav-item">预约参观</a>
+        </nav>
+    </header>
+
+    <section class="hero reveal">
+        <div class="hero-content">
+            <p class="hero-subtitle">秦岭脚下 · 沣河岸边</p>
+            <h1 class="hero-title">沣峪口老油坊博物馆</h1>
+            <a href="#visit" class="hero-btn">守护匠心至今：50,896 天</a>
+        </div>
+    </section>
+
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>关于概况</h2>
+                <div class="divider"></div>
+            </div>
+            <div class="about-content">
+                <div class="about-image reveal">
+                    <img src="https://pic1.imgdb.cn/item/69fdaeee353cb83ac76426d4.jpg" alt="博物馆全景">
+                </div>
+                <div class="about-text reveal">
+                    <p>沣峪口老油坊始建于清代光绪年间，距今已有140多年的历史。作为一座活态的工业遗产博物馆，这里封存着珍贵的木榨设备，是关中民间机械的“活化石”。</p>
+                    <p>在这里，每一根红心白杨木油梁、每一块斑驳的石基砖墙，都在无声地诉说着百年的沧桑。我们将这项非遗技艺完好传承，让世人得以窥见先人劳作的智慧。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="craft" class="craft-section">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>核心技艺</h2>
+                <div class="divider"></div>
+            </div>
+            <div class="craft-grid">
+                <div class="craft-card reveal delay-1">
+                    <div class="img-container"><img src="https://pic1.imgdb.cn/item/69fdaef4353cb83ac76426e3.jpg" alt="文火炒籽"></div>
+                    <div class="craft-info">
+                        <h3>一 · 文火炒籽</h3>
+                        <p>精挑细选本地菜籽，匠人全凭经验掌控火候。翻炒至青烟微起，激发油脂最原始的醇香。</p>
+                    </div>
+                </div>
+                <div class="craft-card reveal delay-2">
+                    <div class="img-container"><img src="https://pic1.imgdb.cn/item/69fdaeeb353cb83ac76426cf.jpg" alt="石碾碾粉"></div>
+                    <div class="craft-info">
+                        <h3>二 · 石碾碎碾</h3>
+                        <p>炒熟的油籽送入千斤石碾槽中，反复碾压成细腻粉末，为出油打下坚实基础。</p>
+                    </div>
+                </div>
+                <div class="craft-card reveal delay-3">
+                    <div class="img-container"><img src="https://pic1.imgdb.cn/item/69fdaee2353cb83ac76426b8.jpg" alt="悬锤打榨"></div>
+                    <div class="craft-info">
+                        <h3>三 · 悬锤打榨</h3>
+                        <p>壮汉合力推动数百斤悬空撞杆撞击木楔。在巨大物理压力下，金黄清油滴答流出。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="culture" class="culture-section">
+        <div class="culture-content reveal">
+            <h2>文旅融合 · 赋能乡村</h2>
+            <p>从濒临消失的老作坊到焕发新生的文化地标，沣峪口老油坊实现了真正的文旅融合发展。我们开展研学旅行、古法榨油体验，让传统农耕文化在现代焕发生机。一滴清油，串联起过去与未来，留住乡愁，赋能振兴。</p>
+        </div>
+    </section>
+
+    <section id="visit" class="visit-section">
+        <div class="container">
+            <div class="visit-card reveal">
+                <div class="section-header" style="margin-bottom: 40px;">
+                    <h2 style="font-size: 38px;">📅 参观预约与指引</h2>
+                </div>
+                <div class="visit-grid">
+                    <div class="info-block">
+                        <h4>📍 馆址信息</h4>
+                        <p>西安市长安区滦镇西留堡村（原沣峪口村西）</p>
+                        <p>开放时间：09:00 - 17:30 (常年开放)</p>
+                    </div>
+                    <div class="info-block">
+                        <h4>🚗 交通提示</h4>
+                        <p>建议自驾搜索“沣峪口老油坊博物馆”。现场可品鉴刚出榨的醇香清油。</p>
+                    </div>
+                </div>
+                <form class="visit-form" id="bookingForm">
+                    <input type="text" placeholder="预约姓名" required>
+                    <input type="tel" placeholder="联系手机" required>
+                    <input type="date" required>
+                    <select required>
+                        <option value="">选择参观人数</option>
+                        <option value="1">1-2人自由行</option>
+                        <option value="2">3-5人小团</option>
+                        <option value="3">5人以上团队</option>
+                    </select>
+                    <button type="submit" class="submit-btn">提交预约申请 · 开启非遗之旅</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 沣峪口老油坊博物馆 | 传承非遗技艺 · 留住百年乡愁</p>
+    </footer>
+
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-content">
+            <div class="modal-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <h3 class="modal-title">预约已提交</h3>
+            <p style="color: #666; margin-bottom: 10px; font-size: 15px;">感谢您的申请！<br>我们的工作人员将在 24 小时内与您联系。</p>
+            <p style="font-size: 13px; color: #999;">期待与您在沣峪口相遇</p>
+            <button class="modal-close-btn" id="closeModalBtn">我知道了</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. 移动端汉堡菜单开关逻辑
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const navMenu = document.getElementById('nav-menu');
+        const navItems = document.querySelectorAll('.nav-item');
+        const icon = mobileMenuBtn.querySelector('i');
+
+        mobileMenuBtn.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+            // 切换图标：汉堡线 <-> 叉号
+            if(navMenu.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-xmark');
+            } else {
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // 点击导航链接后，自动收起菜单
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            });
+        });
+
+        // 2. 滚动浮现动效 (Scroll Reveal)
+        function revealElements() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                // 提前量，让元素在到达屏幕底部 80px 时就开始出现
+                var elementVisible = 80; 
+
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", revealElements);
+        revealElements(); // 页面加载时执行一次
+
+        // 3. 表单提交交互弹窗
+        const bookingForm = document.getElementById('bookingForm');
+        const successModal = document.getElementById('successModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        bookingForm.addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            successModal.classList.add('active');
+        });
+
+        closeModalBtn.addEventListener('click', function() {
+            successModal.classList.remove('active');
+            bookingForm.reset(); 
+        });
+
+        successModal.addEventListener('click', function(e) {
+            if(e.target === successModal) {
+                successModal.classList.remove('active');
+                bookingForm.reset();
+            }
+        });
+    </script>
+
+</body>
+</html>
